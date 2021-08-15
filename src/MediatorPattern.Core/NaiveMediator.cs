@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
 namespace MediatorPattern.Core
 {
@@ -32,12 +30,12 @@ namespace MediatorPattern.Core
             }
 
             var handlerType = requestHandlerMap[requestType];
-            if (handlerType == null )
+            if (handlerType == null)
             {
                 throw new Exception($"Empty handler for type `{requestType}`!");
             }
 
-            if (!handlerType.IsClass )
+            if (!handlerType.IsClass)
             {
                 throw new Exception($"Handler type - `{handlerType}` for request type `{requestType}` is not a class!");
             }
@@ -46,7 +44,7 @@ namespace MediatorPattern.Core
             const string requestInterfaceName = "IRequest`1";
 
             Type responseType = requestType.GetInterface(requestInterfaceName).GetGenericArguments()[0];
-            var hasInterface =  handlerType.FindInterfaces(
+            var hasInterface = handlerType.FindInterfaces(
                     (interfaceType, criteria) =>
                     {
                         var hasCorrectInterface = interfaceType.IsInterface &&

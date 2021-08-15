@@ -6,7 +6,7 @@ namespace MediatorPattern
     {
     }
 
-    public interface IHandler<in TRequest, out TResponse> where TRequest:IRequest<TResponse>
+    public interface IHandler<in TRequest, out TResponse> where TRequest : IRequest<TResponse>
     {
         TResponse Handle(TRequest request);
     }

@@ -1,11 +1,10 @@
-using System;
 using Xunit;
 
 namespace MediatorPattern.Core.Tests
 {
     public class MediatorClientTest
     {
-        IMediator mediator;
+        readonly IMediator mediator;
         static readonly Pong pong = new Pong();
 
         class Ping : IRequest<Pong> { }
