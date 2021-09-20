@@ -1,43 +1,44 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace MediatorPattern.Core
 {
     public class NaiveMediator : IMediator
     {
-        Dictionary<Type, Type> requestHandlerMap;
+        ConcurrentDictionary<Type, Type> requestHandlerMap;
 
         public void Register(Type request, Type handler)
         {
             if (requestHandlerMap == null)
             {
-                requestHandlerMap = new Dictionary<Type, Type>();
+                requestHandlerMap = new ConcurrentDictionary<Type, Type>();
             }
-            requestHandlerMap.Add(request, handler);
+            _ = requestHandlerMap.TryAdd(request, handler);
         }
 
         public T Send<T>(IRequest<T> request)
         {
             if (requestHandlerMap == null || requestHandlerMap.Count == 0)
             {
-                throw new Exception($"Mediator does not have ANY handlers!");
+                throw new ArgumentNullException($"Mediator does not have ANY handlers!");
             }
 
             var requestType = request.GetType();
             if (!requestHandlerMap.ContainsKey(requestType))
             {
-                throw new Exception($"Mediator does not have handlers for type `{requestType}`!");
+                throw new ArgumentException($"Mediator does not have handlers for type `{requestType}`!");
             }
 
             var handlerType = requestHandlerMap[requestType];
             if (handlerType == null)
             {
-                throw new Exception($"Empty handler for type `{requestType}`!");
+                throw new ArgumentException($"Empty handler for type `{requestType}`!");
             }
 
             if (!handlerType.IsClass)
             {
-                throw new Exception($"Handler type - `{handlerType}` for request type `{requestType}` is not a class!");
+                throw new ArgumentException($"Handler type - `{handlerType}` for request type `{requestType}` is not a class!");
             }
 
             const string handlerInterfaceName = "IHandler`2";
@@ -58,8 +59,13 @@ namespace MediatorPattern.Core
 
                         return doGenericParamsMatch && hasCorrectInterface;
                     },
-                    requestType
+                    null
                 ).Length > 0;
+
+            if (!hasInterface)
+            {
+                throw new ArgumentException($"Handler type - `{handlerType}` for request type `{requestType}` is not a proper handler!");
+            }
 
             object handlerInstance = Activator.CreateInstance(handlerType);
             return (T)handlerType.GetMethod("Handle").Invoke(handlerInstance, new object[] { request });
