@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace MediatorPattern.Core.Tests
@@ -31,6 +32,16 @@ namespace MediatorPattern.Core.Tests
             var ping = new Ping();
             var actualPong = mediator.Send<Pong>(ping);
             Assert.Equal(MediatorClientTest.pong, actualPong);
+        }
+
+        private class GenericRequest : IRequest<object> { }
+
+        [Fact]
+        public void GivenHandlerIsIncorrectType_OnMediatorSend_ThrowsErr()
+        {
+            mediator.Register(typeof(GenericRequest), typeof(object));
+            var request = new GenericRequest();
+            Assert.Throws<ArgumentException>(() => mediator.Send<object>(request));
         }
     }
 }
